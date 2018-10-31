@@ -52,7 +52,7 @@ public class EditFromWireshark {
 			  "Host: 172.18.13.106\r\n" + 
 			  "Connection: keep-alive\r\n" + 
 			  "Content-Length: 0\r\n" +    // ==0
-			  "Authorization: Basic bmdpbng6MTIzNA==\r\n"+    //nginx:1234 
+//			  "Authorization: Basic bmdpbng6MTIzNA==\r\n"+    //nginx:1234 
 			  "Cache-Control: max-age=0\r\n" + 
 			  "Origin: http://172.18.13.106\r\n" + 
 			  "Upgrade-Insecure-Requests: 1\r\n" + 
@@ -62,6 +62,7 @@ public class EditFromWireshark {
 			  "Referer: http://172.18.13.106/upload.html\r\n" + 
 			  "Accept-Encoding: gzip, deflate\r\n" + 
 			  "Accept-Language: zh-CN,zh;q=0.9,en;q=0.8,fr;q=0.7,zh-TW;q=0.6,ca;q=0.5\r\n" + 
+			  "Authorization: Basic bmdpbng6MTIzNA==\r\n"+    //nginx:1234 
 			  "\r\n"
 			  ;
 	}

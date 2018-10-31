@@ -24,11 +24,12 @@ public class EZServer {
 	 
      static String ok_200 = 
     		 "HTTP/1.1 200 OK\r\n" + 
+    		 "Content-Length: 0\r\n" +
 //     		"Server: nginx/1.13.8\r\n" + 
 //     		"Date: Tue, 30 Oct 2018 01:00:52 GMT\r\n" + 
 //     		"Content-Type: text/html; charset=UTF-8\r\n" + 
 //     		"Transfer-Encoding: chunked\r\n" + 
-//     		"Connection: keep-alive\r\n" + 
+//     		"Connection: keep-alive\r\n" + 																																																																																																																							
 //     		"Content-Encoding: gzip\r\n" + 
 //     		"\r\n" + 
 //     		"The script being executed is /usr/local/nginx/html/upload.php\r\n" + 
@@ -119,12 +120,12 @@ public class EZServer {
             try {
                 while ((request = br.readLine()) != null ) {
 //                if ((request = br.readLine()) != null) {
-                	 System.out.println("I got the request:"+ request);
+                	 System.out.println("Rvd:"+ request);
                 	 
                 	 if (request.matches("Expect: 100-continue"))
                 	 {	 os.write(countinue_100.getBytes());
                 	     os.flush();
-                	     System.out.println("sent 100-continue");
+                	     System.out.println("\n===>Sent 100_Continue\n");
                 	 }
                 	
                 	 
@@ -132,15 +133,15 @@ public class EZServer {
                 	 { 
                 		 os.write(auth_401.getBytes());
                 	     os.flush();
-                	     System.out.println("sent 401");
+                	     System.out.println("\n===>Sent Auth_401\n");
                 	 }
                 	 else if(request.matches("Authorization: Basic bmdpbng6MTIzNA=="))
                 	 {	 os.write(ok_200.getBytes());
                 	     os.flush();
-                	 	 System.out.println("sent OK");
+                	 	 System.out.println("\n===>Sent 200_OK\n");
                 	 }
-                	 else 
-                		 System.out.println("Unknown request-line");
+//                	 else 
+//                		 System.out.println("Unknown request-line");
                 }
             }
               catch (java.net.SocketException e) {
