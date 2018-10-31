@@ -47,21 +47,23 @@ public class EZServer {
      		"Content-Length: 0\r\n" +  // 597
      		"Connection: keep-alive\r\n" + 
      		"WWW-Authenticate: Basic realm=\"Restricted Content\"\r\n" 
-     		+"\r\n" 																// too long to send ..
-//     		+ 
-//     		"<html>\r\n" + 
-//     		"<head><title>401 Authorization Required</title></head>\r\n" + 
-//     		"<body bgcolor=\"white\">\r\n" + 
-//     		"<center><h1>401 Authorization Required</h1></center>\r\n" + 
-//     		"<hr><center>nginx/1.13.8</center>\r\n" + 
-//     		"</body>\r\n" + 
-//     		"</html>\r\n" + 
-//     		"<!-- a padding to disable MSIE and Chrome friendly error page -->\r\n" + 
-//     		"<!-- a padding to disable MSIE and Chrome friendly error page -->\r\n" + 
-//     		"<!-- a padding to disable MSIE and Chrome friendly error page -->\r\n" + 
-//     		"<!-- a padding to disable MSIE and Chrome friendly error page -->\r\n" + 
-//     		"<!-- a padding to disable MSIE and Chrome friendly error page -->\r\n" + 
-//     		"<!-- a padding to disable MSIE and Chrome friendly error page -->"
+//															
+////     		+ 	// too long to send ..
+////     		"<html>\r\n" + 
+////     		"<head><title>401 Authorization Required</title></head>\r\n" + 
+////     		"<body bgcolor=\"white\">\r\n" + 
+////     		"<center><h1>401 Authorization Required</h1></center>\r\n" + 
+////     		"<hr><center>nginx/1.13.8</center>\r\n" + 
+////     		"</body>\r\n" + 
+////     		"</html>\r\n" + 
+////     		"<!-- a padding to disable MSIE and Chrome friendly error page -->\r\n" + 
+////     		"<!-- a padding to disable MSIE and Chrome friendly error page -->\r\n" + 
+////     		"<!-- a padding to disable MSIE and Chrome friendly error page -->\r\n" + 
+////     		"<!-- a padding to disable MSIE and Chrome friendly error page -->\r\n" + 
+////     		"<!-- a padding to disable MSIE and Chrome friendly error page -->\r\n" + 
+////     		"<!-- a padding to disable MSIE and Chrome friendly error page -->"
+	        
+            +"\r\n" 
      		;		
      static String auth_401_from_customer_internaL = "HTTP/1.1 401 Unauthorized\r\n" + 
      		"Content-Type: text/html\r\n" + 
@@ -102,62 +104,61 @@ public class EZServer {
      		"</body>\r\n" + 
      		"</html>";
 
-    public static void main(String args[]) throws IOException {
-       
-        ServerSocket server = new ServerSocket(port);
-        
-        
-        System.out.println("Listening for connection on port "+port+"..."+server.getInetAddress());
-                
-        while (true) {
-            try (Socket socket = server.accept()) {
-          	
-            	String request;
-                BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                OutputStream os = socket.getOutputStream();
-                
-//                boolean sent_100 = false, sent_200;
-            try {
-                while ((request = br.readLine()) != null ) {
+	public static void main(String args[]) throws IOException {
+
+		ServerSocket server = new ServerSocket(port);
+
+		System.out.println("Listening for connection on port " + port + "..." + server.getInetAddress());
+
+		while (true) {
+			try (Socket socket = server.accept()) {
+
+				String request;
+				BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				OutputStream os = socket.getOutputStream();
+
+				boolean step1 = false; // flag for 2 steps to handle auth-request ( pattern in the middle, not in end).
+				try {
+					while ((request = br.readLine()) != null) {
 //                if ((request = br.readLine()) != null) {
-                	 System.out.println("Rvd:"+ request);
-                	 
-                	 if (request.matches("Expect: 100-continue"))
-                	 {	 os.write(countinue_100.getBytes());
-                	     os.flush();
-                	     System.out.println("\n===>Sent 100_Continue\n");
-                	 }
-                	
-                	 
-                	 else if(request.matches("------WebKitFormBoundarydRcL8NeqnnjYDT3i--") )  // ending of payload    
-                	 { 
-                		 os.write(auth_401.getBytes());
-                	     os.flush();
-                	     System.out.println("\n===>Sent Auth_401\n");
-                	 }
-                	 else if(request.matches("Authorization: Basic bmdpbng6MTIzNA=="))
-                	 {	 os.write(ok_200.getBytes());
-                	     os.flush();
-                	 	 System.out.println("\n===>Sent 200_OK\n");
-                	 }
+						System.out.println("Rvd:" + request);
+
+						if (request.matches("Expect: 100-continue"))
+							sendHttpResponse(os, countinue_100, "100-continue");
+
+						else if (request.matches("------WebKitFormBoundarydRcL8NeqnnjYDT3i--")) // ending of payload
+							sendHttpResponse(os, auth_401, "401-auth");
+
+						else if (request.matches("Authorization: Basic bmdpbng6MTIzNA=="))
+							step1 = true;
+
+						else if (request.startsWith("Accept-Language:") // end of auth-mesg
+								&& step1)
+							sendHttpResponse(os, ok_200, "200-OK");
+
 //                	 else 
 //                		 System.out.println("Unknown request-line");
-                }
-            }
-              catch (java.net.SocketException e) {
-            	  
-            	  e.printStackTrace();
-            	  
-              }
-            
-     
+					}
+				} catch (java.net.SocketException e) {
+
+					e.printStackTrace();
+
+				}
+
 //                Date today = new Date();
 //                String httpResponse = "HTTP/1.1 200 OK\r\n" + today;
 //                socket.getOutputStream().write(httpResponse.getBytes("UTF-8"));
-            }
-        } // end-while
-    }
+			}
+		} // end-while
+	}
     
+    static void  sendHttpResponse (OutputStream os, String mesg, String mesgName) throws IOException {
+    	
+    	 os.write(mesg.getBytes());
+	     os.flush();
+	 	 System.out.println("\n===>Sent "+ mesgName+"\n");
+    	
+    }
 
 }
 
